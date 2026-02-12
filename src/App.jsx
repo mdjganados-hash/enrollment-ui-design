@@ -1,46 +1,169 @@
+import { useState } from "react";
 import "./App.css";
 
 function App() {
+  const [level, setLevel] = useState("");
+  const [department, setDepartment] = useState("");
+  const [degree, setDegree] = useState("");
+  const [dob, setDob] = useState("");
+  const [errors, setErrors] = useState({});
+
+  // Degree programs organized by department
+  const degreePrograms = {
+    Undergraduate: {
+      "College of Engineering and Architecture": [
+        "BS Architecture",
+        "BS Chemical Engineering",
+        "BS Civil Engineering",
+        "BS Computer Engineering",
+        "BS Electrical Engineering",
+        "BS Electronics Engineering",
+        "BS Industrial Engineering",
+        "BS Mechanical Engineering",
+      ],
+      "College of Computer Studies": [
+        "BS Computer Science",
+        "BS Data Science and Analytics",
+        "BS Entertainment and Multimedia Computing",
+        "BS Information Technology",
+      ],
+      "College of Business Education": [
+        "BS Accountancy",
+        "BS Accounting Information System",
+        "BS Business Administration - Financial Management",
+        "BS Business Administration - Human Resource Management",
+        "BS Business Administration - Logistics and Supply Chain Management",
+        "BS Business Administration - Marketing Management",
+      ],
+      "College of Arts": [
+        "Bachelor of Arts in English Language",
+        "Bachelor of Arts in Political Science",
+      ],
+    },
+    Graduate: {
+      "Doctorate Degrees": [
+        "Doctor in Information Technology",
+        "Doctor of Engineering (Computer Engineering)",
+        "Doctor of Philosophy in Computer Science",
+      ],
+      "Master's Degrees": [
+        "Master in Information Systems",
+        "Master in Information Technology",
+        "Master in Logistics and Supply Chain Management",
+        "Master of Engineering (Civil Engineering)",
+        "Master of Engineering (Computer Engineering)",
+        "Master of Engineering (Electrical Engineering)",
+        "Master of Engineering (Electronics Engineering)",
+        "Master of Engineering (Industrial Engineering)",
+        "Master of Engineering (Mechanical Engineering)",
+        "Master of Science in Computer Science",
+      ],
+    },
+  };
+
+  const handleLevelChange = (e) => {
+    setLevel(e.target.value);
+    setDepartment(""); // reset department
+    setDegree("");
+  };
+
+  const handleDepartmentChange = (e) => {
+    setDepartment(e.target.value);
+    setDegree("");
+  };
+
+  const handleDOBChange = (e) => {
+    const selectedDate = e.target.value;
+    const maxDate = new Date("2026-02-12"); // max allowed DOB
+    const userDate = new Date(selectedDate);
+
+    if (userDate > maxDate) {
+      alert("Date of Birth cannot be after 2/12/2026!");
+      e.target.value = "";
+      setDob("");
+      setErrors((prev) => ({ ...prev, dob: true }));
+    } else {
+      setDob(selectedDate);
+      setErrors((prev) => ({ ...prev, dob: false }));
+    }
+  };
+
+  const handleBlur = (e) => {
+    const { name, value, required } = e.target;
+    if (required) {
+      setErrors((prev) => ({
+        ...prev,
+        [name]: value.trim() === "",
+      }));
+    }
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    const form = e.target;
+    const newErrors = {};
+    Array.from(form.elements).forEach((el) => {
+      if (el.required && !el.value) {
+        newErrors[el.name] = true;
+      }
+    });
+    setErrors(newErrors);
+
+    if (Object.keys(newErrors).length === 0) {
+      alert("Form submitted successfully!");
+    }
+  };
+
+  const RequiredMark = ({ fieldName }) =>
+    errors[fieldName] ? <span className="error">*</span> : null;
+
+  const availableDepartments = level ? Object.keys(degreePrograms[level]) : [];
+  const availableDegrees =
+    department && level ? degreePrograms[level][department] || [] : [];
+
   return (
-    <div>
+    <div className="container">
       <h1>ADEi University Digital Registration</h1>
-
-      <form>
-
+      <form onSubmit={handleSubmit}>
         {/* PERSONAL INFORMATION */}
         <h2>Personal Information</h2>
         <fieldset>
           <legend>Student Identity</legend>
-
           <div className="grid-4">
             <div>
-              <label>First Name</label>
-              <input type="text" required />
+              <label>First Name <RequiredMark fieldName="firstName" /></label>
+              <input type="text" name="firstName" required onBlur={handleBlur} />
             </div>
             <div>
-              <label>Middle Name</label>
-              <input type="text" required />
+              <label>Middle Name <RequiredMark fieldName="middleName" /></label>
+              <input type="text" name="middleName" required onBlur={handleBlur} />
             </div>
             <div>
-              <label>Last Name</label>
-              <input type="text" required />
+              <label>Last Name <RequiredMark fieldName="lastName" /></label>
+              <input type="text" name="lastName" required onBlur={handleBlur} />
             </div>
             <div>
               <label>Suffix</label>
-              <input type="text" />
+              <input type="text" name="suffix" />
             </div>
           </div>
 
-          <br />
-
           <div className="grid-3">
             <div>
-              <label>Date of Birth</label>
-              <input type="date" max="2026-12-31" required onKeyDown={e => e.preventDefault()} />
+              <label>Date of Birth <RequiredMark fieldName="dob" /></label>
+              <input
+                type="date"
+                name="dob"
+                max="2026-02-12"
+                required
+                onKeyDown={(e) => e.preventDefault()}
+                onChange={handleDOBChange}
+                onBlur={handleBlur}
+              />
             </div>
             <div>
-              <label>Gender</label>
-              <select required>
+              <label>Gender <RequiredMark fieldName="gender" /></label>
+              <select name="gender" required onBlur={handleBlur}>
                 <option value="">Select</option>
                 <option>Male</option>
                 <option>Female</option>
@@ -48,8 +171,8 @@ function App() {
               </select>
             </div>
             <div>
-              <label>Nationality</label>
-              <select required>
+              <label>Nationality <RequiredMark fieldName="nationality" /></label>
+              <select name="nationality" required onBlur={handleBlur}>
                 <option value="">Select</option>
                 <option>Filipino</option>
                 <option>American</option>
@@ -58,221 +181,198 @@ function App() {
             </div>
           </div>
 
-          <br />
-
           <div className="grid-2">
             <div>
-              <label>Religion</label>
-              <input type="text" required />
+              <label>Religion <RequiredMark fieldName="religion" /></label>
+              <input type="text" name="religion" required onBlur={handleBlur} />
             </div>
           </div>
-
         </fieldset>
 
         {/* CONTACT DETAILS */}
         <h2>Contact Details</h2>
         <fieldset>
           <legend>Communication Information</legend>
-
           <div className="grid-3">
             <div>
-              <label>Email</label>
-              <input type="email" required />
+              <label>Email <RequiredMark fieldName="email" /></label>
+              <input type="email" name="email" required onBlur={handleBlur} />
             </div>
             <div>
-              <label>Mobile</label>
-              <input type="tel" required />
+              <label>Mobile <RequiredMark fieldName="mobile" /></label>
+              <input type="tel" name="mobile" required onBlur={handleBlur} />
             </div>
             <div>
               <label>Landline</label>
-              <input type="tel" />
+              <input type="tel" name="landline" />
             </div>
           </div>
-
-          <br />
 
           <div className="grid-4">
             <div>
-              <label>Street</label>
-              <input type="text" required />
+              <label>Street <RequiredMark fieldName="street" /></label>
+              <input type="text" name="street" required onBlur={handleBlur} />
             </div>
             <div>
-              <label>Barangay</label>
-              <input type="text" required />
+              <label>Barangay <RequiredMark fieldName="barangay" /></label>
+              <input type="text" name="barangay" required onBlur={handleBlur} />
             </div>
             <div>
-              <label>City</label>
-              <input type="text" required />
+              <label>City <RequiredMark fieldName="city" /></label>
+              <input type="text" name="city" required onBlur={handleBlur} />
             </div>
             <div>
-              <label>Province</label>
-              <input type="text" required />
+              <label>Province <RequiredMark fieldName="province" /></label>
+              <input type="text" name="province" required onBlur={handleBlur} />
             </div>
           </div>
-
-          <br />
 
           <div className="grid-2">
             <div>
-              <label>Zip Code</label>
-              <input type="text" required />
+              <label>Zip Code <RequiredMark fieldName="zip" /></label>
+              <input type="text" name="zip" required onBlur={handleBlur} />
             </div>
             <div>
-              <label>Preferred Contact Time</label>
-              <input type="time" min="08:00" max="17:00" required />
+              <label>Preferred Contact Time <RequiredMark fieldName="time" /></label>
+              <input type="time" name="time" min="08:00" max="17:00" required onBlur={handleBlur} />
             </div>
           </div>
-
         </fieldset>
 
         {/* ACADEMIC HISTORY */}
         <h2>Academic History</h2>
+
         <fieldset>
           <legend>Elementary School</legend>
           <div className="grid-3">
             <div>
-              <label>Name</label>
-              <input type="text" required />
+              <label>Name <RequiredMark fieldName="elemName" /></label>
+              <input type="text" name="elemName" required onBlur={handleBlur} />
             </div>
             <div>
-              <label>Year Graduated</label>
-              <input type="number" min="1900" max="2026" required />
+              <label>Year Graduated <RequiredMark fieldName="elemYear" /></label>
+              <input type="number" name="elemYear" min="1900" max="2026" required onBlur={handleBlur} />
             </div>
             <div>
-              <label>Address</label>
-              <input type="text" required />
+              <label>Address <RequiredMark fieldName="elemAddress" /></label>
+              <input type="text" name="elemAddress" required onBlur={handleBlur} />
             </div>
           </div>
         </fieldset>
 
+        {/* JUNIOR HIGH */}
         <fieldset>
           <legend>Junior High School</legend>
           <div className="grid-3">
             <div>
-              <label>Name</label>
-              <input type="text" required />
+              <label>Name <RequiredMark fieldName="jhsName" /></label>
+              <input type="text" name="jhsName" required onBlur={handleBlur} />
             </div>
             <div>
-              <label>Year Graduated</label>
-              <input type="number" min="1900" max="2026" required />
+              <label>Year Graduated <RequiredMark fieldName="jhsYear" /></label>
+              <input type="number" name="jhsYear" min="1900" max="2026" required onBlur={handleBlur} />
             </div>
             <div>
-              <label>Address</label>
-              <input type="text" required />
+              <label>Address <RequiredMark fieldName="jhsAddress" /></label>
+              <input type="text" name="jhsAddress" required onBlur={handleBlur} />
             </div>
           </div>
         </fieldset>
 
+        {/* SENIOR HIGH */}
         <fieldset>
           <legend>Senior High School</legend>
           <div className="grid-4">
             <div>
-              <label>Name</label>
-              <input type="text" required />
+              <label>Name <RequiredMark fieldName="shsName" /></label>
+              <input type="text" name="shsName" required onBlur={handleBlur} />
             </div>
             <div>
-              <label>Year Graduated</label>
-              <input type="number" min="1900" max="2026" required />
+              <label>Year Graduated <RequiredMark fieldName="shsYear" /></label>
+              <input type="number" name="shsYear" min="1900" max="2026" required onBlur={handleBlur} />
             </div>
             <div>
-              <label>Grade Average</label>
-              <input type="text" required />
+              <label>Grade Average <RequiredMark fieldName="shsAverage" /></label>
+              <input type="text" name="shsAverage" required onBlur={handleBlur} />
             </div>
             <div>
-              <label>Address</label>
-              <input type="text" required />
+              <label>Address <RequiredMark fieldName="shsAddress" /></label>
+              <input type="text" name="shsAddress" required onBlur={handleBlur} />
             </div>
           </div>
         </fieldset>
 
-        {/* ENROLLMENT */}
+        {/* ENROLLMENT CHOICES */}
         <h2>Enrollment Choices</h2>
         <fieldset>
           <legend>Program Selection</legend>
 
           <h3>Academic Level</h3>
           <div className="radio-group">
-            <label><input type="radio" name="level" value="Undergraduate" required /> Undergraduate</label>
-            <label><input type="radio" name="level" value="Graduate" required /> Graduate</label>
+            <label>
+              <input type="radio" name="level" value="Undergraduate" required onChange={handleLevelChange} />
+              Undergraduate <RequiredMark fieldName="level" />
+            </label>
+            <label>
+              <input type="radio" name="level" value="Graduate" required onChange={handleLevelChange} />
+              Graduate <RequiredMark fieldName="level" />
+            </label>
           </div>
 
           <h3>Semester</h3>
           <div className="radio-group">
-            <label><input type="radio" name="semester" value="1st" required /> 1st</label>
-            <label><input type="radio" name="semester" value="2nd" required /> 2nd</label>
+            <label>
+              <input type="radio" name="semester" value="1st" required onBlur={handleBlur} />
+              1st <RequiredMark fieldName="semester" />
+            </label>
+            <label>
+              <input type="radio" name="semester" value="2nd" required onBlur={handleBlur} />
+              2nd <RequiredMark fieldName="semester" />
+            </label>
           </div>
 
           <h3>Campus</h3>
           <div className="radio-group">
-            <label><input type="radio" name="campus" value="Manila" required /> Manila</label>
-            <label><input type="radio" name="campus" value="Quezon City" required /> Quezon City</label>
+            <label>
+              <input type="radio" name="campus" value="Manila" required onBlur={handleBlur} />
+              Manila <RequiredMark fieldName="campus" />
+            </label>
+            <label>
+              <input type="radio" name="campus" value="Quezon City" required onBlur={handleBlur} />
+              Quezon City <RequiredMark fieldName="campus" />
+            </label>
           </div>
 
           <h3>College Department</h3>
-          <select required>
+          <select
+            name="department"
+            required
+            value={department}
+            onChange={handleDepartmentChange}
+            onBlur={handleBlur}
+          >
             <option value="">Select Department</option>
-            <option>College of Engineering and Architecture</option>
-            <option>College of Computer Studies</option>
-            <option>College of Business Education</option>
-            <option>College of Arts</option>
+            {availableDepartments.map((dep) => (
+              <option key={dep} value={dep}>{dep}</option>
+            ))}
           </select>
 
           <h3>Degree Program</h3>
-          <select required>
+          <select
+            name="degree"
+            required
+            value={degree}
+            onChange={(e) => setDegree(e.target.value)}
+            onBlur={handleBlur}
+          >
             <option value="">Select Degree Program</option>
-            {/* Undergraduate Programs */}
-            <optgroup label="College of Engineering and Architecture">
-              <option>BS Architecture</option>
-              <option>BS Chemical Engineering</option>
-              <option>BS Civil Engineering</option>
-              <option>BS Computer Engineering</option>
-              <option>BS Electrical Engineering</option>
-              <option>BS Electronics Engineering</option>
-              <option>BS Industrial Engineering</option>
-              <option>BS Mechanical Engineering</option>
-            </optgroup>
-            <optgroup label="College of Computer Studies">
-              <option>BS Computer Science</option>
-              <option>BS Data Science and Analytics</option>
-              <option>BS Entertainment and Multimedia Computing</option>
-              <option>BS Information Technology</option>
-            </optgroup>
-            <optgroup label="College of Business Education">
-              <option>BS Accountancy</option>
-              <option>BS Accounting Information System</option>
-              <option>BS Business Administration - Financial Management</option>
-              <option>BS Business Administration - Human Resource Management</option>
-              <option>BS Business Administration - Logistics and Supply Chain Management</option>
-              <option>BS Business Administration - Marketing Management</option>
-            </optgroup>
-            <optgroup label="College of Arts">
-              <option>Bachelor of Arts in English Language</option>
-              <option>Bachelor of Arts in Political Science</option>
-            </optgroup>
-            {/* Graduate Programs */}
-            <optgroup label="Doctorate Degrees">
-              <option>Doctor in Information Technology</option>
-              <option>Doctor of Engineering (Computer Engineering)</option>
-              <option>Doctor of Philosophy in Computer Science</option>
-            </optgroup>
-            <optgroup label="Master's Degrees">
-              <option>Master in Information Systems</option>
-              <option>Master in Information Technology</option>
-              <option>Master in Logistics and Supply Chain Management</option>
-              <option>Master of Engineering (Civil Engineering)</option>
-              <option>Master of Engineering (Computer Engineering)</option>
-              <option>Master of Engineering (Electrical Engineering)</option>
-              <option>Master of Engineering (Electronics Engineering)</option>
-              <option>Master of Engineering (Industrial Engineering)</option>
-              <option>Master of Engineering (Mechanical Engineering)</option>
-              <option>Master of Science in Computer Science</option>
-            </optgroup>
+            {availableDegrees.map((deg) => (
+              <option key={deg} value={deg}>{deg}</option>
+            ))}
           </select>
-
         </fieldset>
 
-        <button type="submit">Submit Registration</button>
-
+        <button type="submit" className="submit-btn">Submit Registration</button>
       </form>
     </div>
   );
