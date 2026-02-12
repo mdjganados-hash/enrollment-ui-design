@@ -1,96 +1,115 @@
+/* Body & overall layout */
 body {
   font-family: Arial, sans-serif;
-  background-color: #f4f6f9;
+  background-color: #1e1e1e; /* dark theme */
+  color: #fff; /* white text */
   margin: 0;
   display: flex;
   justify-content: center;
   padding: 20px;
 }
 
+/* Form container */
 form {
   width: 100%;
   max-width: 1200px;
-  background: white;
-  padding: 25px;
-  border-radius: 8px;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+  background-color: #2c2c2c; /* slightly lighter dark */
+  padding: 30px;
+  border-radius: 10px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.5);
 }
 
+/* Headers */
 h1 {
   text-align: center;
   margin-bottom: 20px;
+  color: #ff8c00; /* bright orange */
 }
 
 h2 {
   margin-top: 30px;
-  border-bottom: 2px solid #007bff;
+  border-bottom: 2px solid #ff8c00;
   padding-bottom: 5px;
+  color: #ffa500;
 }
 
+h3 {
+  margin-top: 15px;
+  color: #ffa500;
+}
+
+/* Fieldsets */
 fieldset {
   margin-bottom: 20px;
   padding: 20px;
-  border: 1px solid #ccc;
+  border: 1px solid #555;
+  border-radius: 8px;
+  background-color: #333;
 }
 
 legend {
   font-weight: bold;
+  color: #ff8c00;
 }
 
-.grid-4 {
+/* Grids */
+.grid-4, .grid-3, .grid-2 {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
   gap: 15px;
 }
 
-.grid-3 {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 15px;
-}
+.grid-4 { grid-template-columns: repeat(4, 1fr); }
+.grid-3 { grid-template-columns: repeat(3, 1fr); }
+.grid-2 { grid-template-columns: repeat(2, 1fr); }
 
-.grid-2 {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 15px;
-}
-
+/* Inputs & selects */
 input, select {
   width: 100%;
-  padding: 8px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
+  padding: 10px;
+  border: 1px solid #555;
+  border-radius: 5px;
+  background-color: #1e1e1e;
+  color: #fff;
+}
+
+input::placeholder {
+  color: #aaa;
 }
 
 input:focus, select:focus {
-  outline: 2px solid #007bff;
+  outline: 2px solid #ff8c00; /* orange focus */
+  background-color: #2c2c2c;
 }
 
+/* Radio groups */
 .radio-group {
   display: flex;
   gap: 20px;
   flex-wrap: wrap;
 }
 
+/* Buttons */
 button {
   display: block;
-  margin: 20px auto 0 auto;
-  padding: 10px 25px;
-  background-color: #007bff;
-  color: white;
+  margin: 25px auto 0 auto;
+  padding: 12px 30px;
+  background-color: #ff8c00;
+  color: #1e1e1e;
+  font-weight: bold;
   border: none;
-  border-radius: 5px;
+  border-radius: 8px;
   cursor: pointer;
+  transition: all 0.2s ease-in-out;
 }
 
 button:hover {
-  background-color: #0056b3;
+  background-color: #ffa500;
+  transform: scale(1.05);
 }
 
+/* Media queries for responsiveness */
 @media (max-width: 768px) {
-  .grid-4,
-  .grid-3,
-  .grid-2 {
+  .grid-4, .grid-3, .grid-2 {
     grid-template-columns: 1fr;
   }
 }
