@@ -5,7 +5,6 @@ function App() {
   const [level, setLevel] = useState("");
   const [department, setDepartment] = useState("");
   const [degree, setDegree] = useState("");
-  const [dob, setDob] = useState("");
   const [errors, setErrors] = useState({});
 
   // Degree programs organized by department
@@ -63,7 +62,7 @@ function App() {
 
   const handleLevelChange = (e) => {
     setLevel(e.target.value);
-    setDepartment(""); // reset department
+    setDepartment("");
     setDegree("");
   };
 
@@ -72,28 +71,22 @@ function App() {
     setDegree("");
   };
 
-  const handleDOBChange = (e) => {
-    const selectedDate = e.target.value;
-    const maxDate = new Date("2026-02-12"); // max allowed DOB
-    const userDate = new Date(selectedDate);
-
-    if (userDate > maxDate) {
-      alert("Date of Birth cannot be after 2/12/2026!");
-      e.target.value = "";
-      setDob("");
-      setErrors((prev) => ({ ...prev, dob: true }));
-    } else {
-      setDob(selectedDate);
-      setErrors((prev) => ({ ...prev, dob: false }));
-    }
-  };
-
   const handleBlur = (e) => {
-    const { name, value, required } = e.target;
+    const { name, value, required, type } = e.target;
+
+    // DOB validation (no future dates)
+    if (name === "dob" && value) {
+      const today = new Date().toISOString().split("T")[0];
+      if (value > today) {
+        setErrors((prev) => ({ ...prev, dob: true }));
+        return;
+      }
+    }
+
     if (required) {
       setErrors((prev) => ({
         ...prev,
-        [name]: value.trim() === "",
+        [name]: value.trim() === "" ? true : false,
       }));
     }
   };
@@ -124,6 +117,7 @@ function App() {
   return (
     <div className="container">
       <h1>ADEi University Digital Registration</h1>
+
       <form onSubmit={handleSubmit}>
         {/* PERSONAL INFORMATION */}
         <h2>Personal Information</h2>
@@ -154,10 +148,9 @@ function App() {
               <input
                 type="date"
                 name="dob"
-                max="2026-02-12"
+                max={new Date().toISOString().split("T")[0]} // prevent future dates
                 required
                 onKeyDown={(e) => e.preventDefault()}
-                onChange={handleDOBChange}
                 onBlur={handleBlur}
               />
             </div>
@@ -200,11 +193,25 @@ function App() {
             </div>
             <div>
               <label>Mobile <RequiredMark fieldName="mobile" /></label>
-              <input type="tel" name="mobile" required onBlur={handleBlur} />
+              <input
+                type="number"
+                name="mobile"
+                required
+                onInput={(e) => {
+                  if (e.target.value.length > 11) e.target.value = e.target.value.slice(0, 11);
+                }}
+                onBlur={handleBlur}
+              />
             </div>
             <div>
               <label>Landline</label>
-              <input type="tel" name="landline" />
+              <input
+                type="number"
+                name="landline"
+                onInput={(e) => {
+                  if (e.target.value.length > 10) e.target.value = e.target.value.slice(0, 10);
+                }}
+              />
             </div>
           </div>
 
@@ -230,10 +237,18 @@ function App() {
           <div className="grid-2">
             <div>
               <label>Zip Code <RequiredMark fieldName="zip" /></label>
-              <input type="text" name="zip" required onBlur={handleBlur} />
+              <input
+                type="number"
+                name="zip"
+                required
+                onInput={(e) => {
+                  if (e.target.value.length > 4) e.target.value = e.target.value.slice(0, 4);
+                }}
+                onBlur={handleBlur}
+              />
             </div>
             <div>
-              <label>Preferred Contact Time <RequiredMark fieldName="time" /></label>
+              <label>Preferred Contact Time 8am - 5pm <RequiredMark fieldName="time" /></label>
               <input type="time" name="time" min="08:00" max="17:00" required onBlur={handleBlur} />
             </div>
           </div>
@@ -241,7 +256,7 @@ function App() {
 
         {/* ACADEMIC HISTORY */}
         <h2>Academic History</h2>
-
+        {/* Elementary */}
         <fieldset>
           <legend>Elementary School</legend>
           <div className="grid-3">
@@ -260,7 +275,7 @@ function App() {
           </div>
         </fieldset>
 
-        {/* JUNIOR HIGH */}
+        {/* Junior High */}
         <fieldset>
           <legend>Junior High School</legend>
           <div className="grid-3">
@@ -279,7 +294,7 @@ function App() {
           </div>
         </fieldset>
 
-        {/* SENIOR HIGH */}
+        {/* Senior High */}
         <fieldset>
           <legend>Senior High School</legend>
           <div className="grid-4">
